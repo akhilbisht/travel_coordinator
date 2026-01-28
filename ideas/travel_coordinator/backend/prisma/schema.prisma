@@ -1,0 +1,222 @@
+// Prisma Schema for TripSquad
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// USER & AUTH
+// ============================================
+
+model User {
+  id          String   @id @default(uuid())
+  phone       String   @unique
+  name        String?
+  avatarUrl   String?  @map("avatar_url")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  memberships TripMember[]
+  dateVotes   DateVote[]
+  budgets     BudgetEntry[]
+  hotelVotes  HotelVote[]
+  payments    Payment[]
+
+  @@map("users")
+}
+
+// ============================================
+// TRIPS
+// ============================================
+
+model Trip {
+  id              String     @id @default(uuid())
+  name            String
+  destination     String?
+  destinationData Json?      @map("destination_data")
+  inviteCode      String     @unique @default(cuid()) @map("invite_code")
+  status          TripStatus @default(PLANNING)
+
+  // Date range for voting
+  dateRangeStart  DateTime?  @map("date_range_start")
+  dateRangeEnd    DateTime?  @map("date_range_end")
+
+  // Finalized dates
+  startDate       DateTime?  @map("start_date")
+  endDate         DateTime?  @map("end_date")
+
+  // Budget (aggregated from members)
+  budgetMin       Int?       @map("budget_min")
+  budgetMax       Int?       @map("budget_max")
+
+  createdAt       DateTime   @default(now()) @map("created_at")
+  updatedAt       DateTime   @updatedAt @map("updated_at")
+
+  // Relations
+  members         TripMember[]
+  dateVotes       DateVote[]
+  budgets         BudgetEntry[]
+  hotelVotes      HotelVote[]
+  booking         Booking?
+
+  @@map("trips")
+}
+
+enum TripStatus {
+  PLANNING
+  DATES_VOTING
+  DATES_SET
+  BUDGET_SET
+  HOTEL_VOTING
+  HOTEL_CHOSEN
+  BOOKED
+  COMPLETED
+  CANCELLED
+}
+
+model TripMember {
+  id        String     @id @default(uuid())
+  tripId    String     @map("trip_id")
+  userId    String     @map("user_id")
+  role      MemberRole @default(MEMBER)
+  joinedAt  DateTime   @default(now()) @map("joined_at")
+
+  trip      Trip       @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  user      User       @relation(fields: [userId], references: [id])
+
+  @@unique([tripId, userId])
+  @@map("trip_members")
+}
+
+enum MemberRole {
+  ORGANIZER
+  MEMBER
+}
+
+// ============================================
+// DATE VOTING
+// ============================================
+
+model DateVote {
+  id        String   @id @default(uuid())
+  tripId    String   @map("trip_id")
+  userId    String   @map("user_id")
+  date      DateTime
+  available Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  trip      Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@unique([tripId, userId, date])
+  @@index([tripId, date])
+  @@map("date_votes")
+}
+
+// ============================================
+// BUDGET
+// ============================================
+
+model BudgetEntry {
+  id        String   @id @default(uuid())
+  tripId    String   @map("trip_id")
+  userId    String   @map("user_id")
+  minBudget Int      @map("min_budget")
+  maxBudget Int      @map("max_budget")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  trip      Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@unique([tripId, userId])
+  @@map("budget_entries")
+}
+
+// ============================================
+// HOTEL VOTING
+// ============================================
+
+model HotelVote {
+  id          String   @id @default(uuid())
+  tripId      String   @map("trip_id")
+  userId      String   @map("user_id")
+  hotelId     String   @map("hotel_id")
+  hotelData   Json     @map("hotel_data")
+  vote        VoteType
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  trip        Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  user        User     @relation(fields: [userId], references: [id])
+
+  @@unique([tripId, userId, hotelId])
+  @@index([tripId, hotelId])
+  @@map("hotel_votes")
+}
+
+enum VoteType {
+  LIKE
+  DISLIKE
+  SKIP
+}
+
+// ============================================
+// BOOKING & PAYMENTS
+// ============================================
+
+model Booking {
+  id              String        @id @default(uuid())
+  tripId          String        @unique @map("trip_id")
+  hotelId         String        @map("hotel_id")
+  hotelName       String        @map("hotel_name")
+  hotelData       Json          @map("hotel_data")
+  checkIn         DateTime      @map("check_in")
+  checkOut        DateTime      @map("check_out")
+  rooms           Int
+  totalAmount     Int           @map("total_amount")
+  perPersonAmount Int           @map("per_person_amount")
+  affiliateRef    String?       @map("affiliate_ref")
+  status          BookingStatus @default(PENDING)
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+
+  trip            Trip          @relation(fields: [tripId], references: [id])
+  payments        Payment[]
+
+  @@map("bookings")
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
+model Payment {
+  id          String        @id @default(uuid())
+  bookingId   String        @map("booking_id")
+  userId      String        @map("user_id")
+  amount      Int
+  status      PaymentStatus @default(PENDING)
+  razorpayId  String?       @map("razorpay_id")
+  paidAt      DateTime?     @map("paid_at")
+  createdAt   DateTime      @default(now()) @map("created_at")
+
+  booking     Booking       @relation(fields: [bookingId], references: [id])
+  user        User          @relation(fields: [userId], references: [id])
+
+  @@unique([bookingId, userId])
+  @@map("payments")
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
