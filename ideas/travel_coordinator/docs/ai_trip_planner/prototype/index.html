@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TripSquad AI - One Page Prototype</title>
+    <style>
+      :root {
+        --bg: #0f172a;
+        --card: #111827;
+        --text: #e5e7eb;
+        --muted: #94a3b8;
+        --primary: #22c55e;
+        --primary-dark: #16a34a;
+        --accent: #38bdf8;
+        --border: #1f2937;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+      }
+      .container {
+        max-width: 920px;
+        margin: 0 auto;
+        padding: 24px;
+      }
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+      }
+      .logo {
+        font-weight: 700;
+        letter-spacing: 0.5px;
+      }
+      .tagline {
+        color: var(--muted);
+        font-size: 14px;
+      }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 16px;
+      }
+      .section-title {
+        font-size: 16px;
+        margin: 0 0 12px 0;
+      }
+      textarea {
+        width: 100%;
+        min-height: 90px;
+        resize: vertical;
+        background: #0b1220;
+        color: var(--text);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 12px;
+        font-size: 14px;
+      }
+      .buttons {
+        display: flex;
+        gap: 10px;
+        margin-top: 10px;
+      }
+      button {
+        background: var(--primary);
+        color: #0b1220;
+        border: none;
+        border-radius: 10px;
+        padding: 10px 14px;
+        cursor: pointer;
+        font-weight: 600;
+      }
+      button.secondary {
+        background: transparent;
+        color: var(--text);
+        border: 1px solid var(--border);
+      }
+      button.ghost {
+        background: #0b1220;
+        color: var(--text);
+        border: 1px solid var(--border);
+      }
+      button:hover {
+        background: var(--primary-dark);
+      }
+      button.secondary:hover,
+      button.ghost:hover {
+        background: #0f1a2e;
+      }
+      .pill-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .pill {
+        padding: 8px 12px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: #0b1220;
+        cursor: pointer;
+        font-size: 13px;
+      }
+      .pill.active {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 12px;
+      }
+      .muted {
+        color: var(--muted);
+        font-size: 13px;
+      }
+      details {
+        margin-top: 10px;
+      }
+      .summary-box {
+        background: #0b1220;
+        border: 1px dashed var(--border);
+        border-radius: 10px;
+        padding: 12px;
+        font-size: 14px;
+      }
+      a.link {
+        color: var(--accent);
+        text-decoration: none;
+      }
+      .hidden {
+        display: none;
+      }
+      footer {
+        color: var(--muted);
+        font-size: 12px;
+        margin-top: 24px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <div>
+          <div class="logo">TripSquad AI</div>
+          <div class="tagline">Decide where to go in minutes</div>
+        </div>
+        <div class="tagline">One page prototype</div>
+      </header>
+
+      <section class="card">
+        <h2 class="section-title">What kind of trip do you want?</h2>
+        <textarea id="promptInput" placeholder="We want beaches in December, 4 days, 8k per person, from Bangalore"></textarea>
+        <div class="buttons">
+          <button id="suggestBtn">Suggest</button>
+          <button class="secondary" id="clearBtn">Clear</button>
+        </div>
+      </section>
+
+      <section class="card hidden" id="clarifySection">
+        <h2 class="section-title">Quick clarifications</h2>
+        <div class="muted">Tap to set or change your preferences.</div>
+        <div class="card" style="margin-top: 12px;">
+          <div class="muted">When do you want to travel?</div>
+          <div class="pill-row" id="monthPills">
+            <div class="pill">Nov</div>
+            <div class="pill">Dec</div>
+            <div class="pill">Jan</div>
+            <div class="pill">Feb</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="muted">Budget per person per day?</div>
+          <div class="pill-row" id="budgetPills">
+            <div class="pill">4k</div>
+            <div class="pill">6k</div>
+            <div class="pill">8k</div>
+            <div class="pill">10k</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="muted">Trip length?</div>
+          <div class="pill-row" id="lengthPills">
+            <div class="pill">2 days</div>
+            <div class="pill">3 days</div>
+            <div class="pill">4 days</div>
+            <div class="pill">5 days</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="muted">Interests?</div>
+          <div class="pill-row" id="interestPills">
+            <div class="pill">Beach</div>
+            <div class="pill">Mountains</div>
+            <div class="pill">Food</div>
+            <div class="pill">Culture</div>
+            <div class="pill">Nature</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card hidden" id="resultsSection">
+        <h2 class="section-title">Top 3 matches for your group</h2>
+        <div class="grid" id="resultsGrid"></div>
+      </section>
+
+      <section class="card hidden" id="voteSection">
+        <h2 class="section-title">Group vote</h2>
+        <div class="pill-row" id="votePills"></div>
+        <div class="muted" id="voteProgress">0 of 8 voted</div>
+        <div class="buttons" style="margin-top: 12px;">
+          <button id="finalizeBtn">Finalize destination</button>
+          <button class="ghost" id="simulateBtn">Simulate another vote</button>
+        </div>
+      </section>
+
+      <section class="card hidden" id="summarySection">
+        <h2 class="section-title">Trip summary</h2>
+        <div class="summary-box" id="summaryBox">
+          Destination: -
+          <br />Dates: -
+          <br />Budget: -
+          <br />Highlights: -
+        </div>
+        <div class="buttons" style="margin-top: 12px;">
+          <a class="link" id="whatsAppLink" href="#" target="_blank">Share to WhatsApp</a>
+          <button class="secondary" id="copyBtn">Copy summary</button>
+        </div>
+      </section>
+
+      <footer>
+        About | Privacy | Contact
+      </footer>
+    </div>
+
+    <script>
+      const suggestions = [
+        {
+          name: "Goa",
+          reason: "Beach and nightlife fit in Dec. Budget range matches 8k.",
+          window: "Dec 15-28",
+          budget: "6k-9k per person per day",
+          highlights: "Beaches; nightlife; water sports",
+          plan: "Day 1: Beach + sunset walk. Day 2: Water sports. Day 3: Old Goa."
+        },
+        {
+          name: "Gokarna",
+          reason: "Quieter beach option with lower costs and short travel time.",
+          window: "Dec 10-25",
+          budget: "4k-7k per person per day",
+          highlights: "Peaceful beaches; short treks; sunsets",
+          plan: "Day 1: Om Beach. Day 2: Short trek. Day 3: Cafe crawl."
+        },
+        {
+          name: "Varkala",
+          reason: "Cliff beaches in winter with relaxed pace and good cafes.",
+          window: "Dec 05-22",
+          budget: "5k-8k per person per day",
+          highlights: "Cliff views; cafes; yoga",
+          plan: "Day 1: Cliff walk. Day 2: Beach day. Day 3: Cafe and market."
+        }
+      ];
+
+      const totalMembers = 8;
+      const votes = { Goa: 0, Gokarna: 0, Varkala: 0 };
+      let selected = null;
+
+      const suggestBtn = document.getElementById("suggestBtn");
+      const clearBtn = document.getElementById("clearBtn");
+      const clarifySection = document.getElementById("clarifySection");
+      const resultsSection = document.getElementById("resultsSection");
+      const voteSection = document.getElementById("voteSection");
+      const summarySection = document.getElementById("summarySection");
+      const resultsGrid = document.getElementById("resultsGrid");
+      const votePills = document.getElementById("votePills");
+      const voteProgress = document.getElementById("voteProgress");
+      const finalizeBtn = document.getElementById("finalizeBtn");
+      const simulateBtn = document.getElementById("simulateBtn");
+      const summaryBox = document.getElementById("summaryBox");
+      const whatsAppLink = document.getElementById("whatsAppLink");
+      const copyBtn = document.getElementById("copyBtn");
+
+      function showSection(section) {
+        section.classList.remove("hidden");
+      }
+
+      function resetVotes() {
+        votes.Goa = 0;
+        votes.Gokarna = 0;
+        votes.Varkala = 0;
+        selected = null;
+        updateVoteUI();
+      }
+
+      function updateVoteUI() {
+        const total = votes.Goa + votes.Gokarna + votes.Varkala;
+        voteProgress.textContent = `${total} of ${totalMembers} voted`;
+        const top = Object.entries(votes).sort((a, b) => b[1] - a[1])[0][0];
+        Array.from(votePills.children).forEach((pill) => {
+          pill.classList.toggle("active", pill.textContent === selected);
+        });
+        if (total > 0) {
+          voteProgress.textContent += ` | Top match: ${top}`;
+        }
+      }
+
+      function renderResults() {
+        resultsGrid.innerHTML = "";
+        votePills.innerHTML = "";
+        suggestions.forEach((item) => {
+          const card = document.createElement("div");
+          card.className = "card";
+          card.innerHTML = `
+            <strong>${item.name}</strong>
+            <div class="muted">Why it fits: ${item.reason}</div>
+            <div class="muted">Best window: ${item.window}</div>
+            <div class="muted">Budget: ${item.budget}</div>
+            <details>
+              <summary class="muted">View plan</summary>
+              <div class="muted">${item.plan}</div>
+            </details>
+            <div class="buttons" style="margin-top: 10px;">
+              <button class="ghost voteBtn" data-name="${item.name}">Vote</button>
+            </div>
+          `;
+          resultsGrid.appendChild(card);
+
+          const votePill = document.createElement("div");
+          votePill.className = "pill";
+          votePill.textContent = item.name;
+          votePill.addEventListener("click", () => castVote(item.name));
+          votePills.appendChild(votePill);
+        });
+
+        document.querySelectorAll(".voteBtn").forEach((btn) => {
+          btn.addEventListener("click", (e) => {
+            const name = e.currentTarget.getAttribute("data-name");
+            castVote(name);
+          });
+        });
+      }
+
+      function castVote(name) {
+        votes[name] += 1;
+        selected = name;
+        updateVoteUI();
+      }
+
+      function finalize() {
+        const sorted = Object.entries(votes).sort((a, b) => b[1] - a[1]);
+        const winner = sorted[0][1] === 0 ? suggestions[0].name : sorted[0][0];
+        const data = suggestions.find((s) => s.name === winner);
+        const dates = "Dec 20-23";
+        const budget = data.budget;
+        summaryBox.innerHTML = `Destination: ${data.name}<br />Dates: ${dates}<br />Budget: ${budget}<br />Highlights: ${data.highlights}`;
+        const shareText = `Trip summary: ${data.name} | Dates: ${dates} | Budget: ${budget} | Highlights: ${data.highlights}`;
+        const url = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+        whatsAppLink.href = url;
+        showSection(summarySection);
+      }
+
+      function setupPills(id) {
+        const parent = document.getElementById(id);
+        parent.querySelectorAll(".pill").forEach((pill) => {
+          pill.addEventListener("click", () => {
+            parent.querySelectorAll(".pill").forEach((p) => p.classList.remove("active"));
+            pill.classList.add("active");
+          });
+        });
+      }
+
+      suggestBtn.addEventListener("click", () => {
+        showSection(clarifySection);
+        showSection(resultsSection);
+        showSection(voteSection);
+        renderResults();
+        resetVotes();
+        setupPills("monthPills");
+        setupPills("budgetPills");
+        setupPills("lengthPills");
+        setupPills("interestPills");
+      });
+
+      clearBtn.addEventListener("click", () => {
+        document.getElementById("promptInput").value = "";
+        clarifySection.classList.add("hidden");
+        resultsSection.classList.add("hidden");
+        voteSection.classList.add("hidden");
+        summarySection.classList.add("hidden");
+        resetVotes();
+      });
+
+      finalizeBtn.addEventListener("click", finalize);
+      simulateBtn.addEventListener("click", () => {
+        const names = ["Goa", "Gokarna", "Varkala"];
+        const pick = names[Math.floor(Math.random() * names.length)];
+        castVote(pick);
+      });
+
+      copyBtn.addEventListener("click", async () => {
+        const text = summaryBox.textContent.replace(/\s+/g, " ").trim();
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+          copyBtn.textContent = "Copied";
+          setTimeout(() => (copyBtn.textContent = "Copy summary"), 1200);
+        }
+      });
+    </script>
+  </body>
+</html>
