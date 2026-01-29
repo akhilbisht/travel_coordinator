@@ -15,7 +15,29 @@ Return JSON in this exact schema. Missing values must be null.
   "trip_length_days": "number or null",
   "budget_min_per_day_inr": "number or null",
   "budget_max_per_day_inr": "number or null",
-  "interests": ["beach", "mountains", "food", "culture", "nightlife", "nature"],
+  "interests": [
+    "beach",
+    "mountains",
+    "food",
+    "culture",
+    "nightlife",
+    "nature",
+    "wildlife",
+    "adventure",
+    "spiritual",
+    "quiet",
+    "family",
+    "heritage",
+    "desert",
+    "lakes",
+    "islands",
+    "city",
+    "backwaters",
+    "snow",
+    "trekking",
+    "relaxation",
+    "waterfalls"
+  ],
   "constraints": ["flight_only", "max_travel_time", "low_effort", "family_friendly"],
   "group_size": "number or null"
 }
@@ -32,7 +54,8 @@ You are a strict parser. Extract travel intent into the JSON schema.
 Do not invent values. Use null when unknown.
 Only include interests from this list:
 ["beach", "mountains", "food", "culture", "nightlife", "nature", "wildlife",
-"adventure", "spiritual", "quiet", "family"]
+"adventure", "spiritual", "quiet", "family", "heritage", "desert", "lakes",
+"islands", "city", "backwaters", "snow", "trekking", "relaxation", "waterfalls"]
 If the input mentions a season (winter, summer, monsoon), map it to months:
 winter -> Nov-Feb, summer -> Mar-Jun, monsoon -> Jun-Sep.
 Return JSON only. No prose.
